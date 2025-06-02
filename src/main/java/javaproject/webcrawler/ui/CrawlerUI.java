@@ -1,15 +1,8 @@
 package javaproject.webcrawler.ui;
 
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javaproject.webcrawler.model.CrawledPage;
-import javaproject.webcrawler.model.PageMetadata;
-import javaproject.webcrawler.repository.CrawledPageRepository;
-import javaproject.webcrawler.service.CrawlService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -19,14 +12,13 @@ import javax.swing.table.DefaultTableModel;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CrawlerUI extends JFrame {
     private JTextField urlField;
     private JSpinner depthSpinner;
     private JButton startButton;
-    private JButton refreshButton;
+    private JButton showButton;
     private JTable table;
     private JLabel metricsLabel;
     private DefaultTableModel tableModel;
@@ -36,7 +28,7 @@ public class CrawlerUI extends JFrame {
 
     public CrawlerUI() {
         setTitle("Multithreaded Web Crawler");
-        setSize(800, 600);
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initComponents();
         setVisible(true);
@@ -44,13 +36,13 @@ public class CrawlerUI extends JFrame {
 
     private void initComponents() {
         JPanel topPanel = new JPanel(new FlowLayout());
-        urlField = new JTextField("http://example.com", 30);
+        urlField = new JTextField("https://aatish.org", 30);
         depthSpinner = new JSpinner(new SpinnerNumberModel(2, 1, 10, 1));
         startButton = new JButton("Start Crawl");
-        refreshButton = new JButton("Refresh Data");
+        showButton = new JButton("Show Crawled pages");
         topPanel.add(new JLabel("Start URL:")); topPanel.add(urlField);
         topPanel.add(new JLabel("Depth:")); topPanel.add(depthSpinner);
-        topPanel.add(startButton); topPanel.add(refreshButton);
+        topPanel.add(startButton); topPanel.add(showButton);
 
         // Table setup
         tableModel = new DefaultTableModel(
@@ -70,11 +62,12 @@ public class CrawlerUI extends JFrame {
         startButton.addActionListener(e -> {
             try {
                 startCrawl();
+                loadData();
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
         });
-        refreshButton.addActionListener(e -> loadData());
+        showButton.addActionListener(e -> loadData());
     }
 
     private void startCrawl() throws Exception {
@@ -105,14 +98,6 @@ public class CrawlerUI extends JFrame {
                         p.getCrawledAt().toString()
                 });
             }
-
-            // 3) (optional) still fetch & display your metrics
-//            String metricsJson = invokeEndpoint("/crawl/metrics", "GET");
-//            CrawlService.Metrics m = mapper.readValue(metricsJson, CrawlService.Metrics.class);
-//            metricsLabel.setText(String.format(
-//                    "Metrics: Total=%d, Success=%d, Errors=%d, Avg Size=%.1f",
-//                    m.getTotal(), m.getSuccessCount(), m.getErrorCount(), m.getAverageSize()
-//            ));
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error loading data: " + ex.getMessage());
         }

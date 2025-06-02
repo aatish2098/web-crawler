@@ -10,26 +10,31 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
+import javaproject.webcrawler.model.CrawledPage;
+import javaproject.webcrawler.repository.CrawledPageRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javaproject.webcrawler.model.PageMetadata;
 
 @Service
 public class CrawlService {
+
+    @Autowired
+    private CrawledPageRepository pageRepo;
     private final ExecutorService executor = Executors.newFixedThreadPool(10);
     private final Queue<PageMetadata> metadataQueue = new ConcurrentLinkedQueue<>();
     private final Set<String> visited = ConcurrentHashMap.newKeySet();
-<<<<<<< HEAD
-=======
     private String baseUrl;
     private String rootUrl;
->>>>>>> b957fe3 (enhancements)
 
     public void startCrawling(String startUrl, int maxDepth) {
         metadataQueue.clear();
         visited.clear();
+        this.baseUrl = startUrl;
         if (visited.add(startUrl)) {
             this.deleteByBaseUrl(startUrl);
             executor.submit(new CrawlerTask(startUrl, 0, maxDepth));
@@ -86,12 +91,6 @@ public class CrawlService {
 
                 metadataQueue.add(new PageMetadata(pageUrl, length, code, depth));
 
-<<<<<<< HEAD
-                if (depth < maxDepth && code == 200 && conn.getContentType().contains("text/html")) {
-                    Document doc = Jsoup.connect(url).get();
-                    Elements links = doc.select("a[href]");
-                    links.stream()
-=======
                 if (depth <= maxDepth && code == 200 && conn.getContentType().contains("text/html")) {
                     Document doc = Jsoup.connect(pageUrl).get();
                     // extract <head>
@@ -100,24 +99,18 @@ public class CrawlService {
                     String urlAfterBase = pageUrl.startsWith(baseUrl)
                             ? pageUrl.substring(baseUrl.length())
                             : pageUrl;
-
-//                    pageRepo.
-                    // save to MongoDB
-                    String id_ = String.valueOf(pageRepo.save(new CrawledPage(baseUrl, pageUrl, urlAfterBase, depth, headContent)));
-                    System.out.println(id_);
-                    // follow links
+                    pageRepo.save(new CrawledPage(baseUrl, pageUrl, urlAfterBase, depth, headContent));
                     if(depth < maxDepth) {
                         Elements links = doc.select("a[href]");
                         links.stream()
->>>>>>> b957fe3 (enhancements)
-                            .map(link -> link.absUrl("href"))
-                            .filter(link -> link.startsWith("http"))
-                            .distinct()
-                            .forEach(link -> {
-                                if (visited.add(link)) {
-                                    executor.submit(new CrawlerTask(link, depth + 1, maxDepth));
-                                }
-                            });
+                                .map(link -> link.absUrl("href"))
+                                .filter(link -> link.startsWith("http"))
+                                .distinct()
+                                .forEach(link -> {
+                                    if (visited.add(link)) {
+                                        executor.submit(new CrawlerTask(link, depth + 1, maxDepth));
+                                    }
+                                });
                     }
                 }
             } catch (Exception e) {
@@ -126,7 +119,6 @@ public class CrawlService {
             }
         }
     }
-
     // Metrics.java
     public static class Metrics {
         private double averageSize;
