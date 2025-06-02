@@ -1,0 +1,14 @@
+{
+  "_id": {
+    "$oid": "681121164bf084005f95279d"
+  },
+  "baseUrl": "https://www.aniketray.me",
+  "pageUrl": "https://www.aniketray.me",
+  "urlAfterBase": "",
+  "depth": 0,
+  "headContent": "<!-- Google tag (gtag.js) -->\n<script async src=\"https://www.googletagmanager.com/gtag/js?id=G-R6M144TLDZ\"></script>\n<script>\n        window.dataLayer = window.dataLayer || [];\n        function gtag() { dataLayer.push(arguments); }\n        gtag('js', new Date());\n\n        gtag('config', 'G-R6M144TLDZ');\n    </script>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<link rel=\"icon\" type=\"image/x-icon\" href=\"favicon.ico\">\n<title>Aniket Ray</title>",
+  "crawledAt": {
+    "$date": "2025-04-29T18:57:26.223Z"
+  },
+  "_class": "javaproject.webcrawler.model.CrawledPage"
+}
